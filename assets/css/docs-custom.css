@@ -1,13 +1,13 @@
-/* Custom Docsify Theme - Modern Orange Design */
+/* Custom Docsify Theme - Modern Purple Design */
 :root {
-  /* Color Variables - Modern Orange Theme */
+  /* Color Variables - Modern Purple Theme */
   --bg-color: #050505;
   --card-bg: #0f0f0f;
   --border-color: #27272a;
   --text-main: #e4e4e7;
   --text-muted: #a1a1aa;
-  --accent-primary: #d4af37; /* Gold-like orange */
-  --accent-secondary: #e6c766; /* Lighter gold */
+  --accent-primary: #a855f7; /* Purple primary color */
+  --accent-secondary: #c084fc; /* Lighter purple */
   --font-main: "Inter", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 
@@ -37,19 +37,19 @@
   --code-theme-text: var(--text-main);
   --code-theme-comment: #6e8090;
   --code-theme-function: #f07178;
-  --code-theme-keyword: #d4af37;
-  --code-theme-operator: #e6c766;
+  --code-theme-keyword: #a855f7;
+  --code-theme-operator: #c084fc;
   --code-theme-punctuation: #89ddff;
-  --code-theme-selector: #e6c766;
+  --code-theme-selector: #c084fc;
   --code-theme-tag: #f07178;
-  --code-theme-variable: #e6c766;
+  --code-theme-variable: #c084fc;
   --heading-color: #fff;
   --heading-h1-color: var(--accent-primary);
   --heading-h2-color: var(--accent-primary);
   --heading-h3-color: var(--accent-secondary);
   --link-color: var(--accent-primary);
-  --link-color--hover: #b8962e;
-  --blockquote-background: rgba(212, 175, 55, 0.1);
+  --link-color--hover: #8b5cf6;
+  --blockquote-background: rgba(168, 85, 247, 0.1);
   --blockquote-border-color: var(--accent-primary);
   --blockquote-color: var(--text-main);
   --table-cell-border-color: var(--border-color);
@@ -63,7 +63,7 @@
   --search-input-color: var(--text-main);
   --search-result-heading-color: var(--accent-primary);
   --search-result-item-color: var(--text-main);
-  --search-result-keyword-background: rgba(212, 175, 55, 0.3);
+  --search-result-keyword-background: rgba(168, 85, 247, 0.3);
   --search-result-keyword-color: var(--text-main);
 }
 
