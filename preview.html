@@ -1,0 +1,820 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DevRead.me - AI Documentation Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root {
+        --bg-color: #050505;
+        --card-bg: #0f0f0f;
+        --border-color: #27272a;
+        --text-main: #e4e4e7;
+        --text-muted: #a1a1aa;
+        --accent-primary: #a855f7;
+        --accent-secondary: #c084fc;
+        --font-main: "Inter", sans-serif;
+        --font-mono: "JetBrains Mono", monospace;
+        --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.35);
+        --transition-speed: 0.3s;
+        --header-height: 120px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        font-family: var(--font-main);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      .grid-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        background-image:
+          linear-gradient(to right, #1a1a1a 1px, transparent 1px),
+          linear-gradient(to bottom, #1a1a1a 1px, transparent 1px);
+        background-size: 50px 50px;
+        mask-image: radial-gradient(
+          ellipse at center,
+          black 40%,
+          transparent 80%
+        );
+        -webkit-mask-image: radial-gradient(
+          ellipse at center,
+          black 40%,
+          transparent 80%
+        );
+        opacity: 0.6;
+        pointer-events: none;
+      }
+
+      .app-shell {
+        position: relative;
+        min-height: 100vh;
+      }
+
+      .container-xl {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      .content-offset {
+        padding-top: var(--header-height) !important;
+      }
+
+      .text-gradient {
+        background: linear-gradient(45deg, #fff, var(--accent-primary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .text-muted {
+        color: var(--text-muted);
+      }
+
+      .text-accent {
+        color: var(--accent-primary);
+      }
+
+      .label {
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        color: var(--text-muted);
+      }
+
+      .card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+      }
+
+      .card-lg {
+        border-radius: 16px;
+        padding: 2rem;
+      }
+
+      .input-field {
+        width: 100%;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 12px 14px;
+        color: var(--text-main);
+        transition: 0.2s ease;
+      }
+
+      .input-field:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
+      }
+
+      .input-field::placeholder {
+        color: var(--text-muted);
+      }
+
+      .input-chip {
+        background: #1e1e1e;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        color: var(--accent-primary);
+      }
+
+      .accent-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: var(--accent-primary);
+      }
+
+      .color-swatch {
+        width: 64px;
+        height: 48px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        background: var(--card-bg);
+      }
+
+      .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 18px;
+        background: var(--accent-primary);
+        color: #fff;
+        border: 1px solid var(--accent-primary);
+        border-radius: 8px;
+        font-family: var(--font-mono);
+        font-size: 0.95rem;
+        transition: 0.2s ease;
+      }
+
+      .btn-primary:hover {
+        background: #9333ea;
+        border-color: #9333ea;
+      }
+
+      .btn-ghost {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-family: var(--font-mono);
+        color: var(--text-main);
+        transition: 0.2s ease;
+      }
+
+      .btn-ghost:hover {
+        background: var(--border-color);
+      }
+
+      .toggle-track {
+        width: 44px;
+        height: 24px;
+        border-radius: 999px;
+        background: #1e1e1e;
+        border: 1px solid var(--border-color);
+        position: relative;
+        transition: 0.2s ease;
+      }
+
+      .toggle-track[data-active="true"] {
+        background: var(--accent-primary);
+        border-color: var(--accent-primary);
+      }
+
+      .toggle-thumb {
+        width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        background: #fff;
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        transform: translateX(20px);
+      }
+
+      .stat-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 16px;
+        text-align: center;
+      }
+
+      .header-nav {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 1200px;
+        padding: 15px 0;
+        z-index: 100;
+        background-color: rgba(5, 5, 5, 0.8);
+        backdrop-filter: blur(5px);
+        border: 1px solid var(--border-color);
+        border-radius: 30px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .header-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 2rem;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--font-mono);
+        font-weight: 700;
+        font-size: 1.2rem;
+        text-decoration: none;
+        color: var(--text-main);
+        transition: all 0.3s ease;
+      }
+
+      .logo-img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        transition: all 0.3s ease;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 1.5rem;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        transition: all 0.3s ease;
+      }
+
+      .nav-links a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-family: var(--font-mono);
+        font-size: 0.9rem;
+        transition: color var(--transition-speed);
+        position: relative;
+      }
+
+      .nav-links a:hover {
+        color: var(--accent-primary);
+      }
+
+      .nav-links a::after {
+        content: "";
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: var(--accent-primary);
+        transition: width var(--transition-speed);
+      }
+
+      .nav-links a:hover::after {
+        width: 100%;
+      }
+
+      .social-card {
+        height: fit-content;
+        width: fit-content;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        background: transparent;
+        padding: 0;
+        border-radius: 0;
+      }
+
+      .Btn {
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        background-color: transparent;
+        position: relative;
+        border-radius: 7px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        outline: none;
+      }
+
+      .svgContainer {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: transparent;
+        backdrop-filter: blur(0px);
+        letter-spacing: 0.8px;
+        border-radius: 10px;
+        transition: all 0.3s;
+        border: none;
+        z-index: 2;
+        outline: none;
+      }
+
+      .social-icon {
+        width: 1.6em;
+        height: 1.6em;
+        filter: brightness(0) invert(1);
+        transition: all 0.3s;
+        outline: none;
+      }
+
+      .BG {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: #181818;
+        z-index: 1;
+        border-radius: 10px;
+        pointer-events: none;
+        transition: all 0.3s;
+        font-size: 0px;
+      }
+
+      .github .BG {
+        background: #181818;
+      }
+
+      .discord .BG {
+        background: #7289da;
+      }
+
+      .Btn:hover .BG {
+        transform: scale(1.5);
+        font-size: 20px;
+        color: white;
+      }
+
+      .Btn:hover .svgContainer {
+        border: none;
+        background-color: rgba(209, 209, 209, 0.466);
+        backdrop-filter: blur(4px);
+      }
+
+      .Btn:hover .social-icon {
+        filter: brightness(0) invert(1);
+      }
+
+      @media (max-width: 768px) {
+        :root {
+          --header-height: 180px;
+        }
+
+        .header-nav {
+          top: 10px;
+          width: 95%;
+          border-radius: 20px;
+          padding: 10px 0;
+        }
+
+        .header-content {
+          flex-direction: column;
+          gap: 1rem;
+          padding: 0 15px;
+        }
+
+        .nav-wrapper,
+        .social-card {
+          display: none;
+        }
+
+        .nav-links {
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+      }
+
+      @media (max-width: 480px) {
+        :root {
+          --header-height: 200px;
+        }
+      }
+
+      .app-footer {
+        background: var(--card-bg);
+        border-top: 1px solid var(--border-color);
+      }
+
+      .preview-notice {
+        background: rgba(249, 115, 22, 0.15);
+        border: 1px solid rgba(249, 115, 22, 0.5);
+        color: #fdba74;
+        border-radius: 12px;
+        padding: 14px 16px;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .preview-notice a {
+        color: #fdba74;
+        text-decoration: underline;
+      }
+
+      a {
+        text-decoration: none;
+        color: inherit;
+        transition: 0.2s ease;
+      }
+
+      a:hover {
+        color: var(--accent-secondary);
+      }
+
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: rgba(212, 175, 55, 0.5);
+        border-radius: 10px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(212, 175, 55, 0.8);
+      }
+
+      ::selection {
+        background-color: rgba(212, 175, 55, 0.3);
+        color: #f5f5f5;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <div class="grid-bg"></div>
+
+      <header class="header-nav">
+        <div class="header-content">
+          <a href="/" class="logo">
+            <img
+              src="https://jumpstone4477.de/devreadme/assets/img/logo.png"
+              alt="DevRead.me Logo"
+              class="logo-img"
+            />
+            DevRead.me
+          </a>
+
+          <nav aria-label="Hauptnavigation" class="nav-wrapper">
+            <ul class="nav-links">
+              <li>
+                <a href="/" aria-current="page">Home</a>
+              </li>
+              <li>
+                <a href="https://jumpstone4477.de/devreadme">Website</a>
+              </li>
+            </ul>
+          </nav>
+
+          <div class="social-card">
+            <a
+              href="https://github.com/devread-me"
+              class="Btn github"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="GitHub"
+            >
+              <span class="svgContainer">
+                <img
+                  src="https://jumpstone4477.de/assets/img/badges/github-mark-white.png"
+                  alt="GitHub"
+                  class="social-icon"
+                />
+              </span>
+              <span class="BG"></span>
+            </a>
+
+            <a
+              href="https://discord.gg/yKU4Q2mHj8"
+              class="Btn discord"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Discord"
+            >
+              <span class="svgContainer">
+                <img
+                  src="https://jumpstone4477.de/assets/img/badges/Discord-Symbol-White-square.png"
+                  alt="Discord"
+                  class="social-icon"
+                />
+              </span>
+              <span class="BG"></span>
+            </a>
+          </div>
+
+          <button class="md:hidden btn-ghost" aria-label="Toggle navigation">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="relative z-10 container-xl content-offset py-12">
+        <div class="preview-notice mb-8">
+          <span>
+            This is a preview only. To use the full app, visit the Get Started
+            guide.
+          </span>
+          <a
+            href="https://jumpstone4477.de/devreadme/docs#/getting-started/quick-start"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Get Started</a
+          >
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div class="lg:col-span-2 space-y-6">
+            <div class="space-y-4 mb-8">
+              <h2 class="text-4xl md:text-5xl font-bold leading-tight">
+                Transform Your Code into
+                <span class="text-gradient">Beautiful Docs</span>
+              </h2>
+              <p class="text-lg text-muted leading-relaxed max-w-2xl">
+                Powered by AI. Create comprehensive Docsify documentation from
+                your GitHub repositories in seconds.
+              </p>
+            </div>
+
+            <div class="card card-lg space-y-6 relative">
+              <div class="space-y-2">
+                <label class="block label">Project Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g., MyAwesomeProject"
+                  class="input-field"
+                />
+              </div>
+
+              <div class="space-y-2">
+                <label class="block label"
+                  >Project Description (Optional)</label
+                >
+                <input
+                  type="text"
+                  placeholder="Brief description of your project"
+                  class="input-field"
+                />
+              </div>
+
+              <div class="space-y-2">
+                <label class="block label">Code/README Input</label>
+                <textarea
+                  placeholder="Paste your README.md, code snippets, or project overview..."
+                  rows="6"
+                  class="input-field resize-none"
+                ></textarea>
+              </div>
+
+              <div class="space-y-3">
+                <div class="card p-3 flex items-center justify-between">
+                  <span class="text-sm font-medium text-muted"
+                    >Generate Full Documentation Package</span
+                  >
+                  <button class="toggle-track" data-active="true">
+                    <span class="toggle-thumb"></span>
+                  </button>
+                </div>
+
+                <div class="space-y-2">
+                  <label class="block label">Accent Color</label>
+                  <div class="flex items-center space-x-3">
+                    <input
+                      type="color"
+                      value="#D4AF37"
+                      class="color-swatch cursor-pointer"
+                    />
+                    <code class="input-chip">#D4AF37</code>
+                  </div>
+                </div>
+
+                <div class="card p-3 flex items-center justify-between">
+                  <span class="text-sm font-medium text-muted"
+                    >Include Sidebar Navigation</span
+                  >
+                  <button class="toggle-track" data-active="true">
+                    <span class="toggle-thumb"></span>
+                  </button>
+                </div>
+              </div>
+
+              <button class="btn-primary w-full" type="button">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <polygon
+                    points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"
+                  ></polygon>
+                </svg>
+                <span>Generate Documentation</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="space-y-6">
+            <div class="card p-6 space-y-4">
+              <h3 class="text-lg font-bold flex items-center space-x-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="text-accent"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M12 3c.132 0 .263 0 .394.001A1.5 1.5 0 0 1 13.8 4.5c0 .04.001.08.001.12a8.5 8.5 0 0 0 6.2 8.2c.04.001.08.001.12.001a1.5 1.5 0 0 1 1.5 1.406c.001.132.001.263.001.394a8.5 8.5 0 0 1-8.5 8.5h-.044a8.5 8.5 0 0 1-8.5-8.5v-.044A8.5 8.5 0 0 1 12 3Z"
+                  ></path>
+                  <path d="m8.5 14.5 2-2 2 2 4-4"></path>
+                </svg>
+                <span>Features</span>
+              </h3>
+              <ul class="space-y-3 text-sm text-muted">
+                <li class="flex items-center space-x-2">
+                  <span class="accent-dot"></span>
+                  <span>AI-Powered Analysis</span>
+                </li>
+                <li class="flex items-center space-x-2">
+                  <span class="accent-dot"></span>
+                  <span>Docsify Integration</span>
+                </li>
+                <li class="flex items-center space-x-2">
+                  <span class="accent-dot"></span>
+                  <span>Custom Themes</span>
+                </li>
+                <li class="flex items-center space-x-2">
+                  <span class="accent-dot"></span>
+                  <span>Auto Sidebars</span>
+                </li>
+                <li class="flex items-center space-x-2">
+                  <span class="accent-dot"></span>
+                  <span>One-Click Export</span>
+                </li>
+                <li class="flex items-center space-x-2">
+                  <span class="accent-dot"></span>
+                  <span>Markdown Support</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="card p-6 space-y-4">
+              <h3 class="text-lg font-bold flex items-center space-x-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="text-accent"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"
+                  ></path>
+                </svg>
+                <span>Tech Stack</span>
+              </h3>
+              <div class="space-y-2 text-sm text-muted">
+                <p>
+                  <span class="text-accent font-semibold">Frontend:</span>
+                  Next.js, TypeScript, Tailwind
+                </p>
+                <p>
+                  <span class="text-accent font-semibold">AI:</span> Groq Llama
+                  3.3 70B
+                </p>
+                <p>
+                  <span class="text-accent font-semibold">Export:</span> JSZip,
+                  Docsify
+                </p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="stat-card">
+                <p class="text-2xl font-bold text-accent">1000+</p>
+                <p class="text-xs text-muted mt-1">Generated Docs</p>
+              </div>
+              <div class="stat-card">
+                <p class="text-2xl font-bold text-accent">500+</p>
+                <p class="text-xs text-muted mt-1">Happy Users</p>
+              </div>
+              <div class="stat-card">
+                <p class="text-2xl font-bold text-accent">30s</p>
+                <p class="text-xs text-muted mt-1">Avg Time</p>
+              </div>
+              <div class="stat-card">
+                <p class="text-2xl font-bold text-accent">99.9%</p>
+                <p class="text-xs text-muted mt-1">Success Rate</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="relative z-10 app-footer mt-20">
+        <div class="container-xl py-8 text-center text-muted text-sm">
+          <p>
+            Powered by <span class="text-accent font-semibold">Groq Cloud</span>
+            &amp; built with
+            <span class="text-accent font-semibold">Next.js</span>
+          </p>
+          <p class="mt-2">
+            © 2026
+            <a href="https://jumpstone4477.de/devreadme">DevRead.me</a>
+            is licensed under GNU GPLv3.
+          </p>
+          <p>Made by developers for developers.</p>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
